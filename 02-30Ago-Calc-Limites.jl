@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.41
+# v0.19.43
 
 using Markdown
 using InteractiveUtils
@@ -79,10 +79,11 @@ md"""
 ## Area Under a Curve
 """
 
+# ╔═╡ 6b609bb7-91db-4a49-82df-c8ce4053a386
+max_n_rect = 100
+
 # ╔═╡ b55a4ab6-340c-4d6a-8bf8-efe4800d66bb
 begin
-	max_n_rect = 100
-	
 	rectangles = @bind n_rect Slider(1:max_n_rect, default=10, show_value=true)
 
 	md"Number of rectangles: $(rectangles)"
@@ -90,7 +91,7 @@ end
 
 # ╔═╡ 4c988c5b-e1aa-4f68-8967-90a15aca9f38
 begin
-	palette_choice = @bind color_palette Select(["viridis", "plasma", "rainbow"])
+	palette_choice = @bind color_palette Select(["viridis", "plasma", "rainbow"], default = "rainbow")
 
 	md"Color scheme: $(palette_choice)"
 end
@@ -114,7 +115,7 @@ begin
 	x_star_slider = @bind x_star Slider(0:0.1:1, default=0.5, show_value=true)
 
 	# Create a slider for the interval
-	h_slider = @bind h Slider(-1:0.001:1, default=0.5, show_value=true)
+	h_slider = @bind h Slider(0:0.001:1, default=0.5, show_value=true)
 
 	md"Choose x-value: $(x_star_slider) \
 	Move x closer to a: $(h_slider)"
@@ -130,21 +131,28 @@ For instance, what happens to a function near a point outside of its domain? How
 The concept of a *limit* lets us explore the behavior of functions **near** points — even if the point is actually undefined.
 """
 
+# ╔═╡ 382c6d7a-c686-4d42-808a-0b841d3c2c1b
+md"""
+## What's the Main Idea?
+"""
+
 # ╔═╡ 34e828f2-c44c-4a7d-ba86-d616976f5230
 md"""
- ## Types of Limits
+ ## Some Limits
 * One-sided limits
 * Limits at infinity
 """
 
 # ╔═╡ d56e5311-3713-4663-acea-445bbc0e06f4
 md"""
-## One-sided limits
+## One-Sided Limits
 """
 
 # ╔═╡ 4746bade-f38a-4b24-a326-c028c560cf3d
 begin
-	pw1(x) = -abs(x)+5
+	#ignore the actual definition of the function for the exercise
+	#focus on the graph
+	pw1(x) = -x^2/6+5
 	pw2(x) = abs(x)-5
 
 	# Define the piecewise function
@@ -157,14 +165,21 @@ begin
 	end
 end
 
+# ╔═╡ 4020dac0-e9c0-491c-b57e-f807dfa16a37
+@bind clicked Button("Reset values")
+
 # ╔═╡ 903e7cea-f7f4-44b0-a2f2-292d5a767597
 begin
 	# Define the sliders for 'a' and 't_anim'
-	pw_boundary = @bind a_piecewise Slider(-10:0.1:10, default=0, show_value=true)
-	animation = @bind t_anim Slider(0:0.01:1, default=0, show_value=true)
+	#pw_boundary = @bind a_piecewise Slider(-10:0.1:10, default=0, show_value=true)
+	#pw_boundary = @bind a_piecewise Select([-5.307, 0, 3])
+	a_piecewise = 0
+	animation = @bind t_anim Slider(0:0.0001:0.9999, default=0, show_value=true)
 
-	md"Move boundary a of piecewise function: $(pw_boundary) \
-	Move x closer to a: $(animation)"
+	clicked
+	
+	#Move boundary a of piecewise function: $(pw_boundary) \
+	md"Move x closer to a: $(animation)"
 end
 
 # ╔═╡ 9ef9f93f-98d2-482e-acc9-1a6098c79fe4
@@ -188,14 +203,14 @@ begin
 	y_right_anim = f_pw(x_right_anim, a_piecewise)
 
 	# Create the plot
-	p = plot(title="Piecewise Function with a = $a_piecewise",
+	p = plot(title="Piecewise Function",
          xlabel="x", ylabel="f(x)", legend=false,
          linewidth=3, widen=true, lims=(-10.0, 10.0),
          framestyle=:zerolines, aspectratio=1)
 
 	# Plot the two parts of the function
-	plot!(p, x_left, y_left, label="Left piece", color=:blue)
-	plot!(p, x_right, y_right, label="Right piece", color=:blue)
+	plot!(p, x_left, y_left, label="Left piece", color=:blue, linewidth=3)
+	plot!(p, x_right, y_right, label="Right piece", color=:blue, linewidth=3)
 
 	# Add vertical line at x = a
 	vline!([a_piecewise], color=:black, linestyle=:dash, label="x = a")
@@ -227,12 +242,9 @@ begin
 	ylims!(-10, 10)
 end
 
-# ╔═╡ 60123d34-b590-45d9-8962-ce4605e6fb81
-
-
 # ╔═╡ 47d90820-95ce-4e4c-9bbb-715a2a595114
 md"""
-## Limits at infinity
+## Limits at Infinity
 """
 
 # ╔═╡ 1c9d8569-8c9a-47ef-9c37-a8fa372d392b
@@ -247,7 +259,7 @@ end
 
 # ╔═╡ cb8b7dac-2cac-456a-8d52-9f6f8d3714dc
 # Define the slider for 't_anim_inf'
-@bind t_anim_inf Slider(0:0.01:0.99999, default=0, show_value=true)
+@bind t_anim_inf Slider(-1:0.01:0.93, default=-1, show_value=false)
 
 # ╔═╡ cfcb3eeb-013e-45c0-9efa-e61d258823b1
 # Function to calculate the animated x position
@@ -284,8 +296,8 @@ p_inf = plot(title="Limit of f(x) = 1/x as x approaches 0",
          framestyle=:origin)
 
 # Plot the two parts of the function
-plot!(p_inf, x_left_inf, y_left_inf, color=:blue)
-plot!(p_inf, x_right_inf, y_right_inf, color=:blue)
+plot!(p_inf, x_left_inf, y_left_inf, color=:blue, linewidth=3)
+plot!(p_inf, x_right_inf, y_right_inf, color=:blue, linewidth=3)
 
 # Add vertical asymptote at x = 0
 vline!(p_inf, [0], color=:black, linestyle=:dash, label="x = 0")
@@ -318,89 +330,144 @@ md"""
 
 # ╔═╡ a4f7513c-6422-436e-be94-0c399c8db6ff
 # Define the function f_atinf(x) = 1/x
-f_atinf(x) = 1/x
+function f_atinf(x)
+    if abs(x) > 1e10  # Avoid division by very large numbers
+        return 0  # Return 0 for very large x values
+    else
+        return 1/x
+    end
+end
 
 # ╔═╡ 77b89293-140c-4ce5-8859-783c210dad26
 begin
 	# Define the sliders and checkbox
-	t_anim_atinf_slider = @bind t_anim_atinf Slider(0:0.01:0.99999, default=0, show_value=true)
-	scale_atinf_slider = @bind scale_atinf Slider(0:9, default=0, show_value=true)
-	negative_atinf_check = @bind negative_atinf CheckBox(default=false)
-
-	md"Let x approach infinity: $(t_anim_atinf_slider) \
-	Adjust the scale of the plot: $(scale_atinf_slider)\
-	Towards negative or positive infinity?: $(negative_atinf_check)"
+    t_anim_atinf_slider = @bind t_anim_atinf Slider(0.01:0.01:1, default=0, show_value=true)
+	md"Let x approach infinity: $(t_anim_atinf_slider)"
 end
 
-# ╔═╡ 472393dc-ec25-49d6-b43c-a57e10f6b083
+# ╔═╡ ed1adbaa-37a8-4cd3-95a0-8f12d3b7878e
 # Function to calculate the animated x position
-function calculate_x_anim_atinf(t, scale, negative)
-    center = 10.0^scale
-    range = scale == 0 ? 1 : 10.0^(scale - 1)
-    min_x = center - range
-    max_x = center + range
-    x = min_x + (max_x - min_x) * t
-    return negative ? -x : x
+function calculate_x_anim_atinf(t)
+    return 10^(3*t)  # x goes from 1 to 1000
 end
 
-# ╔═╡ c3dd3249-b148-463b-af95-9d2989a17bb0
-# Function to get plot limits based on scale
-function get_plot_limits(scale, negative)
-    center = 10.0^scale
-    range = scale == 0 ? 1 : 10.0^(scale - 1)
-    min_x = center - range
-    max_x = center + range
-    return negative ? (-max_x, -min_x) : (min_x, max_x)
-end
-
-# ╔═╡ 6f4442e9-eca0-4b29-b5ea-dc3e29d1bfc8
-begin
-# Function to create the plot
-function create_plot(t_anim_atinf, scale_atinf, negative_atinf)
-    x_anim_atinf = calculate_x_anim_atinf(t_anim_atinf, scale_atinf, negative_atinf)
+# ╔═╡ 8c96658b-769e-439b-b1ea-6a5f6cf1bfeb
+# Create the plot
+function create_plot_atinf(t_anim_atinf)
+    x_anim_atinf = calculate_x_anim_atinf(t_anim_atinf)
     y_anim_atinf = f_atinf(x_anim_atinf)
-
-    x_min_atinf, x_max_atinf = get_plot_limits(scale_atinf, negative_atinf)
-    y_max_atinf = max(abs(f_atinf(x_min_atinf)), abs(f_atinf(x_max_atinf)))
-    y_min_atinf = -y_max_atinf
-
-    x_atinf = range(x_min_atinf, x_max_atinf, length=1000)
-    y_atinf = f_atinf.(x_atinf)
-
-    p_atinf = plot(title="Limit of f(x) = 1/x as x approaches $(negative_atinf ? "negative" : "positive") infinity",
-             xlabel="x", ylabel="f(x)", legend=false,
-             linewidth=3, widen=true,
-             framestyle=:origin, aspectratio=:none,
-             size=(800, 600),  # Set a fixed size for the plot
-             margin=10Plots.mm)  # Add some margin around the plot
-
-    plot!(p_atinf, x_atinf, y_atinf, color=:blue)
-    hline!(p_atinf, [0], color=:black, linestyle=:dash, label="y = 0")
-    scatter!(p_atinf, [x_anim_atinf], [y_anim_atinf], 
-             markershape=:circle, markersize=8, markercolor=:red, 
-             label="Approaching infinity")
     
-    # Adjust annotation position based on negative_atinf
-    annotation_x = negative_atinf ? x_max_atinf - 0.05*(x_max_atinf - x_min_atinf) : x_min_atinf + 0.05*(x_max_atinf - x_min_atinf)
-    annotate!(p_atinf, annotation_x, y_max_atinf * 0.9, 
-              text("f($(round(x_anim_atinf, sigdigits=6))) = $(round(y_anim_atinf, sigdigits=6))", 
-                   :red, negative_atinf ? :right : :left, 8))
+    # Calculate x range
+    x_range_atinf = 0.1:0.1:999*t_anim_atinf+1
+    y_range_atinf = f_atinf.(x_range_atinf)
 
-    xlims!(p_atinf, x_min_atinf, x_max_atinf)
-    ylims!(p_atinf, y_min_atinf, y_max_atinf)
+	midpoint_x_atinf = (999*t_anim_atinf+1)/2
+    
+    p_atinf = plot(x_range_atinf, y_range_atinf, 
+                   title="Limit of f(x) = 1/x as x approaches infinity",
+                   xlabel="x", ylabel="f(x)", legend=false,
+                   linewidth=3, color=:blue)
+    
+    # Add animated point
+    scatter!(p_atinf, [x_anim_atinf], [y_anim_atinf], 
+             markersize=6, markercolor=:red)
 
+	# Add fixed text overlay
+    plot_annotation = "x = $(round(x_anim_atinf, digits=2))\ny = $(round(y_anim_atinf, digits=4))"
+    plot!(p_atinf, annotation=(midpoint_x_atinf, 5, Plots.text(plot_annotation, :right, :top, 10)))
+    
+    
     return p_atinf
 end
 
+# ╔═╡ 9540f0b3-c85d-4c84-b7ee-b48b14d8f653
+# Display the plot
+create_plot_atinf(t_anim_atinf)
+
+# ╔═╡ b496ef8f-6e84-4722-80f6-747859b72c2d
+md"""
+# You Try
+"""
+
+# ╔═╡ 32ecf76a-27be-4e48-9934-aa09cc3b8852
+md"## 1. $f(x) = x+1$"
+
+# ╔═╡ 542b6260-92a2-4b1a-8354-de8271ca4a12
+begin
+	f_line(x) = x+1
+	
+	# Create the plot
+	p_line = plot(f_line, title="f(x) = x+1 ",
+         xlabel="x", ylabel="f(x)", legend=false,
+         linewidth=3, widen=true,
+		 color=:blue,
+         framestyle=:origin)
+
+	# Set axis limits
+	xlims!(p_line, -2, 2)
+	ylims!(p_line, -2, 5)
 end
 
-# ╔═╡ e78b6c49-ca2b-4f5e-b3df-9bbd0525c33c
-# Display the plot
-create_plot(t_anim_atinf, scale_atinf, negative_atinf)
+# ╔═╡ d7fbfcae-4255-48ca-ba9b-9a80fa492a83
+md"## 2. $f(x) = \frac{1}{x}$"
+
+# ╔═╡ 5eaef56f-01b9-49d6-8128-b0b88e05d33f
+begin
+# Create the plot
+p_inf3 = plot(title="f(x) = 1/x ",
+         xlabel="x", ylabel="f(x)", legend=false,
+         linewidth=3, widen=true, ylims = (-15,15),
+         framestyle=:origin)
+
+# Plot the two parts of the function
+plot!(p_inf3, x_left_inf, y_left_inf, color=:blue, linewidth=3)
+plot!(p_inf3, x_right_inf, y_right_inf, color=:blue, linewidth=3)
+
+# Add vertical asymptote at x = 0
+vline!(p_inf3, [0], color=:black, linestyle=:dash, label="x = 0")
+
+# Set axis limits
+xlims!(p_inf3, -2, 2)
+ylims!(p_inf3, -10, 10)
+end
+
+# ╔═╡ 82fb7e01-f9a9-499f-a1a8-0f71423382a2
+md"## 3. $f(x) = \frac{x^2-1}{x-1}$"
+
+# ╔═╡ ff0d726f-08c9-4219-92d0-a54703b5da09
+begin
+	f_rat(x) = (x^2-1)/(x-1)
+	
+	# Create the plot
+	p_div0 = plot(f_rat,title="f(x) = (x^2-1)/(x-1) ",
+         	xlabel="x", ylabel="f(x)", legend=false,
+         	linewidth=3, widen=true,
+		 	color=:blue,
+         	framestyle=:origin)
+
+	# Add open circle at x=1
+		scatter!([1], [2], 
+        	markershape=:circle, markersize=6, markeralpha=1, 
+        	markercolor=:white, markerstrokecolor=:blue, label="")
+
+	# Set axis limits
+	xlims!(p_div0, -2, 2)
+	ylims!(p_div0, -2, 5)
+end
+
+# ╔═╡ 462fe35e-2811-4d29-9e67-c6339cdc9ef7
+md"""
+# Questionnaire
+"""
+
+# ╔═╡ dd1682bf-939d-40c6-a73e-a31f44ec1815
+md"""
+#### [>>>Fill out this questionnaire<<<](https://forms.gle/YHwpgighbEFijMnh6)
+"""
 
 # ╔═╡ 11d3b77d-1bbb-4bd5-8f5f-2ae637b2bfae
 md"""
-# Defining functions and parameters
+# (Ignore) Definitions of Julia Functions
 """
 
 # ╔═╡ 364eadde-915d-4a73-9c5b-384217149e6c
@@ -417,7 +484,7 @@ begin
     steps = zeno_steps(zeno_n)
     total_distance = steps[end]
     
-	p1 = plot(0:zeno_n, steps, marker=:circle, label="Distance", legend=:bottomright)
+	p1 = plot(0:zeno_n, steps, marker=:circle, label="Distance", legend=:bottomright,  color=:blue)
 	
 	plot!(p1, [0, zeno_n], [1, 1], linestyle=:dash, label="Limit")
 	
@@ -438,6 +505,7 @@ begin
     	size=(600, 100),
     	ticks=nothing,
     	grid=false,
+		color=:blue,
     	ylims=(-0.15, 0.15))  # Add some vertical space for the emoji
 
 	# Add circles for each half-distance
@@ -542,7 +610,7 @@ end
 # Create the visualization
 begin
     x = range(a, b, length=1000)
-    plot(x, f.(x), label="f(x) = x^2", lw=2, legend=false)
+    plot(x, f.(x), label="f(x) = x^2", lw=3, legend=false, color=:blue)
 
 	palette_sym = Symbol(color_palette)
 	
@@ -571,14 +639,6 @@ begin
     annotate!(1, 2.4, text("Error: $(round(abs(actual_integral - approx_integral), digits=4))", 10))
 end
 
-# ╔═╡ 38a8eaa7-ac9c-43e2-8c9f-374f14b0c71f
-plot(x, f_atinf.(x), 
-         title="f(x) = 1/x",
-         xlabel="x", ylabel="f(x)",
-         legend=false,
-         linewidth=2,
-         size=(600, 400))
-
 # ╔═╡ c2b6abb0-ea05-4ff0-ae5f-03ac43c35cf9
 begin
 	# Define our function
@@ -589,16 +649,19 @@ begin
     	secant_slope = (f(a + h) - f(a)) / h
     
     	# Calculate the slope of the tangent line (derivative at x = a)
-    	#tangent_slope = 2 * a  # For f(x) = x^2, f'(x) = 2x
+    	tangent_slope = 2 * a  # For f(x) = x^2, f'(x) = 2x
     
     	# Define the secant and tangent lines
     	secant_line(x) = secant_slope * (x - a) + f(a)
-    	#tangent_line(x) = tangent_slope * (x - a) + f(a)
+    	tangent_line(x) = tangent_slope * (x - a) + f(a)
     
     	# Create the plot
-    	p = plot(f, a-2, a+2, label="f(x) = x^2", lw=2, legend=:topleft, widen=true, ylims = (-2,6))
-    	plot!(p, secant_line, a-2, a+2, label="Secant line", lw=2)
-    	#plot!(p, tangent_line, a-2, a+2, label="Tangent line", lw=2, linestyle=:dash)
+    	p = plot(f, a-2, a+2, label="f(x) = x^2", lw=3, legend=:topleft, widen=true, ylims = (-2,6), color=:blue)
+		if h > 0
+    		plot!(p, secant_line, a-2, a+2, label="Secant line", lw=3, linestyle=:dash)
+		else
+    		plot!(p, tangent_line, a-2, a+2, label="Tangent line", lw=3)
+		end
     	scatter!(p, [a, a+h], [f(a), f(a+h)], label="Secant points", markersize=5)
     	scatter!(p, [a], [f(a)], label="Tangent point", markersize=5)
     
@@ -615,6 +678,44 @@ end
 
 # ╔═╡ cfbb2328-4752-4c7e-be82-70479bc2a974
 plot_secant_and_tangent(f, x_star, h)
+
+# ╔═╡ e9bf4a4b-e8fd-4ae2-98e4-bb821aae623e
+# algunas funciones auxiliares que utilizaremos a lo largo de este notebook
+begin
+	lerp(a,b,t) = a*(1-t) + b*t
+	invlerp(a,b,x) = (x-a)/(b-a)
+	speed = 0.1
+	MAX = 50
+	EPS = 1.0e-10
+
+	md"### Main Idea"
+end
+
+# ╔═╡ c1a97e49-5f37-40af-bf69-14e0ced0bf6c
+@bind t_move Clock(speed, max_value=MAX)
+
+# ╔═╡ a7fea435-e5e5-4e42-9a34-f1363d2ac2ec
+begin
+	a_mainidea = 1
+	x_mainidea = lerp(a_mainidea-1,a_mainidea-EPS,invlerp(0,MAX,t_move))
+	plot(0,
+	legend = false,	linewidth = 3, # make function have thicker line
+	widen = false, # stylistic choice
+	color = :blue,
+	xlims = (a_mainidea-1-0.5, a_mainidea+0.5), # set boundaries of plot
+	ylims = (-0.5,0.5), axis = false
+	)
+	scatter!([a_mainidea],[0],markersize=5,legend = false, color = "red")
+	scatter!([x_mainidea],[0],markersize=5,legend = false, color = "blue")
+	annotate!([x_mainidea-0.1],[0.05], ("x",15,:above, :left))
+	annotate!([a_mainidea+0.1],[-0.03], ("a",15,:below, :right))
+end
+
+# ╔═╡ 851bbe67-4a9b-4534-966e-e2938ebc6686
+md"
+#### x: $x_mainidea
+#### a: $a_mainidea
+"
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -1761,42 +1862,55 @@ version = "1.4.1+1"
 # ╟─9930e201-d54b-419a-8566-5c17d4012489
 # ╟─0c19edf8-f215-42dd-8508-bcf6b2629259
 # ╟─2cabaa57-f694-4768-bc3b-396f242c253a
-# ╠═253b81b3-8c82-4012-9d58-d884ae20c0d9
+# ╟─253b81b3-8c82-4012-9d58-d884ae20c0d9
 # ╟─2151f90a-3aee-4238-9b18-e2843ec40e83
 # ╟─74239f93-68fe-41a0-b495-2db340404044
 # ╟─b38dbab2-9af0-4054-8758-8f7a56eed5a4
 # ╟─cb34907f-f834-4d38-a534-db503ac2d9b1
+# ╠═6b609bb7-91db-4a49-82df-c8ce4053a386
 # ╟─b55a4ab6-340c-4d6a-8bf8-efe4800d66bb
 # ╟─4c988c5b-e1aa-4f68-8967-90a15aca9f38
 # ╟─29186b2d-6e76-437b-b343-af52ca6c0193
 # ╟─c635b7c7-f93f-4d7f-a412-ed63466fc923
 # ╟─15732081-0f0a-4d19-8e55-248809489090
 # ╟─517b14d6-36b0-4e82-a020-ba8fc62a707e
-# ╠═cfbb2328-4752-4c7e-be82-70479bc2a974
+# ╟─cfbb2328-4752-4c7e-be82-70479bc2a974
 # ╟─8ea9b561-49dc-4593-bd55-04df4a6dfdb9
+# ╟─382c6d7a-c686-4d42-808a-0b841d3c2c1b
+# ╟─c1a97e49-5f37-40af-bf69-14e0ced0bf6c
+# ╟─851bbe67-4a9b-4534-966e-e2938ebc6686
+# ╟─a7fea435-e5e5-4e42-9a34-f1363d2ac2ec
 # ╟─34e828f2-c44c-4a7d-ba86-d616976f5230
 # ╟─d56e5311-3713-4663-acea-445bbc0e06f4
 # ╟─4746bade-f38a-4b24-a326-c028c560cf3d
 # ╟─903e7cea-f7f4-44b0-a2f2-292d5a767597
+# ╟─4020dac0-e9c0-491c-b57e-f807dfa16a37
 # ╟─9ef9f93f-98d2-482e-acc9-1a6098c79fe4
-# ╠═60123d34-b590-45d9-8962-ce4605e6fb81
 # ╟─47d90820-95ce-4e4c-9bbb-715a2a595114
 # ╟─1c9d8569-8c9a-47ef-9c37-a8fa372d392b
 # ╟─cb8b7dac-2cac-456a-8d52-9f6f8d3714dc
-# ╠═cfcb3eeb-013e-45c0-9efa-e61d258823b1
-# ╠═70768f71-f704-4243-8fbd-b7deed4e1f46
+# ╟─cfcb3eeb-013e-45c0-9efa-e61d258823b1
+# ╟─70768f71-f704-4243-8fbd-b7deed4e1f46
 # ╟─596e7059-a9c4-4f6f-a4cb-5d77db17cc57
-# ╠═a4f7513c-6422-436e-be94-0c399c8db6ff
+# ╟─a4f7513c-6422-436e-be94-0c399c8db6ff
 # ╟─77b89293-140c-4ce5-8859-783c210dad26
-# ╠═472393dc-ec25-49d6-b43c-a57e10f6b083
-# ╠═c3dd3249-b148-463b-af95-9d2989a17bb0
-# ╟─6f4442e9-eca0-4b29-b5ea-dc3e29d1bfc8
-# ╠═e78b6c49-ca2b-4f5e-b3df-9bbd0525c33c
-# ╠═38a8eaa7-ac9c-43e2-8c9f-374f14b0c71f
+# ╟─ed1adbaa-37a8-4cd3-95a0-8f12d3b7878e
+# ╟─8c96658b-769e-439b-b1ea-6a5f6cf1bfeb
+# ╟─9540f0b3-c85d-4c84-b7ee-b48b14d8f653
+# ╟─b496ef8f-6e84-4722-80f6-747859b72c2d
+# ╟─32ecf76a-27be-4e48-9934-aa09cc3b8852
+# ╟─542b6260-92a2-4b1a-8354-de8271ca4a12
+# ╟─d7fbfcae-4255-48ca-ba9b-9a80fa492a83
+# ╟─5eaef56f-01b9-49d6-8128-b0b88e05d33f
+# ╟─82fb7e01-f9a9-499f-a1a8-0f71423382a2
+# ╟─ff0d726f-08c9-4219-92d0-a54703b5da09
+# ╟─462fe35e-2811-4d29-9e67-c6339cdc9ef7
+# ╟─dd1682bf-939d-40c6-a73e-a31f44ec1815
 # ╟─11d3b77d-1bbb-4bd5-8f5f-2ae637b2bfae
 # ╟─364eadde-915d-4a73-9c5b-384217149e6c
 # ╟─1d6f1dfc-cac8-4349-8e48-814f18fb68c9
 # ╟─1b3f97e5-799c-4d73-bcc5-2972a63d9f21
 # ╟─c2b6abb0-ea05-4ff0-ae5f-03ac43c35cf9
+# ╟─e9bf4a4b-e8fd-4ae2-98e4-bb821aae623e
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
